@@ -13,86 +13,32 @@ type Link = {
   via: string;
 };
 
-type Feed = {
-  title: string;
-  version: number;
-  links: Link[];
+type PageDto = {
+  total: number;
+  items: Link[];
 };
 
-function chip(text: string): HTMLElement {
-  const span = document.createElement("span");
-  span.className = "tag-chip";
-  span.textContent = text;
-  return span;
-}
+const path = "mylinks.pb";
+let offset = 0;
+let limit = 10;
+let total = 0;
 
-function renderFeed(feed: Feed) {
-  const root = document.getElementById("feed");
-  if (!root) return;
+const listEl = document.getElementById("feed-list")!;
+const tpl = document.getElementById("link-template") as HTMLTemplateElement;
 
-  root.innerHTML = ""; // clear
+const btnFirst = document.getElementById("first") as HTMLButtonElement;
+const btnPrev = document.getElementById("prev") as HTMLButtonElement;
+const btnNext = document.getElementById("next") as HTMLButtonElement;
+const btnLast = document.getElementById("last") as HTMLButtonElement;
 
-  const h2 = document.createElement("h2");
-  h2.textContent = `${feed.title} (v${feed.version})`;
-  root.appendChild(h2);
+const btnFirstB = document.getElementById("first-bottom") as HTMLButtonElement;
+const btnPrevB = document.getElementById("prev-bottom") as HTMLButtonElement;
+const btnNextB = document.getElementById("next-bottom") as HTMLButtonElement;
+const btnLastB = document.getElementById("last-bottom") as HTMLButtonElement;
 
-  const list = document.createElement("div");
-  list.className = "feed-list";
-  root.appendChild(list);
-
-  for (const link of feed.links) {
-    const card = document.createElement("article");
-    card.className = "link-card";
-
-    // title + URL
-    const h3 = document.createElement("h3");
-    const a = document.createElement("a");
-    a.href = link.url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    a.textContent = link.title;
-    h3.appendChild(a);
-    card.appendChild(h3);
-
-    // meta (date, via)
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    const date = document.createElement("span");
-    date.textContent = link.date;
-    meta.appendChild(date);
-
-    if (link.via) {
-      const sep = document.createElement("span");
-      sep.textContent = " · ";
-      meta.appendChild(sep);
-
-      const via = document.createElement("a");
-      via.href = link.via;
-      via.target = "_blank";
-      via.rel = "noopener noreferrer";
-      via.textContent = "via";
-      meta.appendChild(via);
-    }
-    card.appendChild(meta);
-
-    // summary
-    if (link.summary) {
-      const p = document.createElement("p");
-      p.textContent = link.summary;
-      card.appendChild(p);
-    }
-
-    // tags
-    if (link.tags?.length) {
-      const tagRow = document.createElement("div");
-      tagRow.className = "tags";
-      for (const t of link.tags) tagRow.appendChild(chip(t));
-      card.appendChild(tagRow);
-    }
-
-    list.appendChild(card);
-  }
-}
+const statusTop = document.getElementById("pager-status")!;
+const statusBottom = document.getElementById("pager-status-bottom")!;
+const pageSizeSel = document.getElementById("page-size") as HTMLSelectElement;
 
 // async function greet() {
 //   if (greetMsgEl && greetInputEl) {
@@ -103,14 +49,112 @@ function renderFeed(feed: Feed) {
 //   }
 // }
 
-async function loadFeed() {
-  try {
-    const feed = await invoke<Feed>("read_feed_json", { path: "mylinks.pb" });
-    renderFeed(feed);
-  } catch (e) {
-    const root = document.getElementById("feed");
-    if (root) root.textContent = `Failed to load feed: ${e}`;
+function chip(text: string): HTMLElement {
+  const span = document.createElement("span");
+  span.className = "tag-chip";
+  span.textContent = text;
+  return span;
+}
+
+function renderItems(items: Link[]) {
+  listEl.innerHTML = "";
+  if (!items.length) {
+    listEl.innerHTML = `<p style="color:var(--muted)">No items on this page.</p>`;
+    return;
   }
+
+  for (const link of items) {
+    const node = tpl.content.firstElementChild!.cloneNode(true) as HTMLElement;
+
+    // title/link
+    const a = node.querySelector("h3 a") as HTMLAnchorElement;
+    a.href = link.url;
+    a.textContent = link.title;
+
+    // meta
+    (node.querySelector(".date") as HTMLElement).textContent = link.date;
+    const viaA = node.querySelector(".via") as HTMLAnchorElement;
+    const sep = node.querySelector(".sep") as HTMLElement;
+    if (link.via) {
+      viaA.href = link.via;
+      viaA.style.display = "";
+      sep.style.display = "";
+    } else {
+      viaA.style.display = "none";
+      sep.style.display = "none";
+    }
+
+    // summary
+    const sum = node.querySelector(".summary") as HTMLElement;
+    if (link.summary) sum.textContent = link.summary;
+    else sum.style.display = "none";
+
+    // tags
+    const tags = node.querySelector(".tags") as HTMLElement;
+    if (link.tags?.length) {
+      for (const t of link.tags) tags.appendChild(chip(t));
+    } else {
+      tags.style.display = "none";
+    }
+
+    listEl.appendChild(node);
+  }
+}
+
+function updatePager() {
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const currentPage = Math.min(totalPages, Math.floor(offset / limit) + 1);
+  const start = total === 0 ? 0 : offset + 1;
+  const end = Math.min(total, offset + limit);
+
+  const text = `Page ${currentPage} / ${totalPages} • showing ${start}–${end} of ${total}`;
+
+  statusTop.textContent = text;
+  statusBottom.textContent = text;
+
+  const atFirst = currentPage <= 1;
+  const atLast = currentPage >= totalPages;
+
+  for (const b of [btnFirst, btnPrev, btnFirstB, btnPrevB])
+    b.disabled = atFirst;
+  for (const b of [btnNext, btnLast, btnNextB, btnLastB]) b.disabled = atLast;
+}
+
+async function loadPage() {
+  try {
+    const page = await invoke<PageDto>("read_feed_page", {
+      path,
+      offset,
+      limit,
+    });
+    total = page.total;
+    renderItems(page.items);
+    updatePager();
+  } catch (e) {
+    listEl.innerHTML = `<p style="color:#ef4444">Failed to load: ${e}</p>`;
+  }
+}
+
+function goFirst() {
+  offset = 0;
+  loadPage();
+}
+function goPrev() {
+  offset = Math.max(0, offset - limit);
+  loadPage();
+}
+function goNext() {
+  offset = Math.min(Math.max(0, total - 1), offset + limit);
+  loadPage();
+}
+function goLast() {
+  if (total === 0) {
+    offset = 0;
+  } else {
+    const remainder = total % limit;
+    offset = remainder === 0 ? total - limit : total - remainder;
+  }
+  loadPage();
 }
 
 // window.addEventListener("DOMContentLoaded", () => {
@@ -122,4 +166,22 @@ async function loadFeed() {
 //   });
 // });
 
-window.addEventListener("DOMContentLoaded", loadFeed);
+window.addEventListener("DOMContentLoaded", () => {
+  btnFirst.addEventListener("click", goFirst);
+  btnPrev.addEventListener("click", goPrev);
+  btnNext.addEventListener("click", goNext);
+  btnLast.addEventListener("click", goLast);
+
+  btnFirstB.addEventListener("click", goFirst);
+  btnPrevB.addEventListener("click", goPrev);
+  btnNextB.addEventListener("click", goNext);
+  btnLastB.addEventListener("click", goLast);
+
+  pageSizeSel.addEventListener("change", () => {
+    limit = parseInt(pageSizeSel.value, 10);
+    offset = 0; // reset to first page when page size changes
+    loadPage();
+  });
+
+  loadPage();
+});

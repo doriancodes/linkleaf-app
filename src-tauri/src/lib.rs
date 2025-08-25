@@ -45,6 +45,12 @@ impl From<Feed> for FeedDto {
     }
 }
 
+#[derive(Serialize)]
+struct PageDto {
+    total: usize,
+    items: Vec<LinkDto>,
+}
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -56,12 +62,31 @@ fn read_feed_json(path: String) -> Result<FeedDto, String> {
     Ok(FeedDto::from(pb))
 }
 
+#[tauri::command]
+fn read_feed_page(path: String, offset: usize, limit: usize) -> Result<PageDto, String> {
+    let feed = read_feed(&PathBuf::from(path)).map_err(|e| e.to_string())?;
+    let total = feed.links.len();
+    let end = (offset + limit).min(total);
+    let items = if offset >= total {
+        vec![]
+    } else {
+        feed.links
+            .into_iter()
+            .skip(offset)
+            .take(limit)
+            .map(LinkDto::from)
+            .collect()
+    };
+    Ok(PageDto { total, items })
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![read_feed_json])
+        .invoke_handler(tauri::generate_handler![read_feed_page])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

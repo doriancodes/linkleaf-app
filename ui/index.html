@@ -42,7 +42,70 @@
                 <button type="submit">Greet</button>
             </form> -->
             <!-- <p id="greet-msg"></p> -->
-            <section id="feed"></section>
+            <section id="feed">
+                <h2>Your feed</h2>
+
+                <!-- Pagination controls (top) -->
+                <nav class="pager" aria-label="Pagination">
+                    <button id="first" class="pager-btn" disabled>
+                        « First
+                    </button>
+                    <button id="prev" class="pager-btn" disabled>‹ Prev</button>
+                    <span id="pager-status" class="pager-status"
+                        >Page 1 / 1</span
+                    >
+                    <button id="next" class="pager-btn">Next ›</button>
+                    <button id="last" class="pager-btn">Last »</button>
+
+                    <label class="pager-size">
+                        per page
+                        <select id="page-size">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </label>
+                </nav>
+
+                <!-- List container -->
+                <div id="feed-list" class="feed-list"></div>
+
+                <!-- Pagination controls (bottom) -->
+                <nav class="pager" aria-label="Pagination">
+                    <button id="first-bottom" class="pager-btn" disabled>
+                        « First
+                    </button>
+                    <button id="prev-bottom" class="pager-btn" disabled>
+                        ‹ Prev
+                    </button>
+                    <span id="pager-status-bottom" class="pager-status"
+                        >Page 1 / 1</span
+                    >
+                    <button id="next-bottom" class="pager-btn">Next ›</button>
+                    <button id="last-bottom" class="pager-btn">Last »</button>
+                </nav>
+
+                <!-- Template for one link-card -->
+                <template id="link-template">
+                    <article class="link-card">
+                        <h3>
+                            <a target="_blank" rel="noopener noreferrer"></a>
+                        </h3>
+                        <div class="meta">
+                            <span class="date"></span>
+                            <span class="sep"> · </span>
+                            <a
+                                class="via"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                >via</a
+                            >
+                        </div>
+                        <p class="summary"></p>
+                        <div class="tags"></div>
+                    </article>
+                </template>
+            </section>
         </main>
     </body>
 </html>
