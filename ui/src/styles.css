@@ -283,3 +283,183 @@ button.pager-btn {
 #feed .feed-list + .pager {
     margin-top: 1rem; /* tweak to taste */
 }
+
+/* =================== Top navigation =================== */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg-alt, #1f2335);
+    border-bottom: 1px solid var(--border, #2a2f4a);
+    backdrop-filter: saturate(120%) blur(4px);
+}
+.topbar-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.brand {
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    color: var(--text, #c0caf5);
+    text-decoration: none;
+}
+.brand:hover {
+    color: var(--link, #7aa2f7);
+}
+
+.nav-links {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+}
+.nav-link {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.5rem;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+.nav-link:hover {
+    color: var(--link-hover, #7dcfff);
+    border-color: var(--border, #2a2f4a);
+    background: var(--panel, #1f2335);
+}
+.nav-link.active {
+    background: #222642;
+    border: 1px solid var(--link, #7aa2f7);
+    color: var(--text);
+}
+
+/* Space between topbar and content */
+.container {
+    margin-top: 1rem;
+}
+
+/* =================== Form card =================== */
+.form-card {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--panel, #1f2335);
+    border: 1px solid var(--border, #2a2f4a);
+    border-radius: 12px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem 1rem;
+}
+.form-full {
+    grid-column: 1 / -1;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--muted, #a9b1d6);
+    font-size: 0.9rem;
+}
+.form-field .req {
+    color: #f7768e;
+}
+
+input[type="text"],
+input[type="url"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    color: var(--text, #c0caf5);
+    background: #151724;
+    border: 1px solid var(--border, #2a2f4a);
+    border-radius: 0.6rem;
+    outline: none;
+    font: inherit;
+}
+textarea {
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--link, #7aa2f7);
+    box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.2);
+}
+
+.hint {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--muted, #a9b1d6);
+}
+
+/* =================== Buttons (shared with pager) =================== */
+.btn {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--border, #2a2f4a);
+    background: var(--panel, #1f2335);
+    color: var(--text, #c0caf5);
+    text-decoration: none;
+    font: inherit;
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.02s ease;
+}
+.btn:hover {
+    border-color: var(--link, #7aa2f7);
+    background: #222642;
+}
+.btn:active {
+    transform: translateY(1px);
+}
+.btn:focus-visible {
+    outline: 2px solid var(--link, #7aa2f7);
+    outline-offset: 2px;
+}
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    border-color: var(--link, #7aa2f7);
+    background: #28325a;
+}
+.btn-primary:hover {
+    background: #2c3763;
+}
+
+.btn-secondary {
+}
+
+/* Actions row */
+.form-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+/* Responsive form */
+@media (max-width: 640px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}

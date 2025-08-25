@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="/src/styles.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script type="module" src="/src/add.ts" defer></script>
+        <title>Add Link • Linkleaf</title>
+    </head>
+    <body>
+        <!-- Top navigation -->
+        <header class="topbar">
+            <div class="topbar-inner">
+                <a class="brand" href="/index.html">Linkleaf</a>
+                <nav class="nav-links" aria-label="Primary">
+                    <a class="nav-link" href="/index.html">Feed</a>
+                    <a
+                        class="nav-link active"
+                        href="/add.html"
+                        aria-current="page"
+                        >Add Link</a
+                    >
+                </nav>
+            </div>
+        </header>
+
+        <main class="container">
+            <h1>Add link</h1>
+
+            <form
+                id="add-form"
+                action="#"
+                method="post"
+                novalidate
+                class="form-card"
+            >
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label for="title"
+                            >Title
+                            <span aria-hidden="true" class="req">*</span></label
+                        >
+                        <input
+                            id="title"
+                            name="title"
+                            type="text"
+                            required
+                            placeholder="e.g. Tokio - Asynchronous Rust"
+                        />
+                    </div>
+
+                    <div class="form-field">
+                        <label for="url"
+                            >URL
+                            <span aria-hidden="true" class="req">*</span></label
+                        >
+                        <input
+                            id="url"
+                            name="url"
+                            type="url"
+                            required
+                            placeholder="https://example.com/"
+                        />
+                    </div>
+
+                    <div class="form-field">
+                        <label for="via">Via</label>
+                        <input
+                            id="via"
+                            name="via"
+                            type="url"
+                            placeholder="https://source.example"
+                        />
+                    </div>
+
+                    <div class="form-field form-full">
+                        <label for="summary">Summary</label>
+                        <textarea
+                            id="summary"
+                            name="summary"
+                            rows="4"
+                            placeholder="Optional notes…"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-field form-full">
+                        <label for="tags">Tags</label>
+                        <input
+                            id="tags"
+                            name="tags"
+                            type="text"
+                            placeholder="Comma-separated, e.g. rust, async, tokio"
+                        />
+                        <small class="hint">Use commas to separate tags</small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn btn-secondary" href="/index.html">Cancel</a>
+                    <button class="btn btn-primary" type="submit" disabled>
+                        Save
+                    </button>
+                </div>
+            </form>
+        </main>
+    </body>
+</html>

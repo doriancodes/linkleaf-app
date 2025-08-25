@@ -2103,12 +2103,15 @@ name = "linkleaf-app"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "hex",
  "linkleaf-rs",
  "serde",
  "serde_json",
+ "sha2",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",
+ "time",
 ]
 
 [[package]]
