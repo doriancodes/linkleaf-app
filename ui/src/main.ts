@@ -97,6 +97,14 @@ function renderItems(items: Link[]) {
       tags.style.display = "none";
     }
 
+    // after filling title/meta/summary/tags…
+    const details = node.querySelector(".details-link") as HTMLAnchorElement;
+    details.href = `/detail.html?id=${encodeURIComponent(link.id)}`;
+
+    // (optional) if you added an explicit "Open" button in the template:
+    const open = node.querySelector(".open-link") as HTMLAnchorElement;
+    open.href = link.url;
+
     listEl.appendChild(node);
   }
 }

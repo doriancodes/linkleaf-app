@@ -463,3 +463,126 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== Breadcrumb ===== */
+.breadcrumb {
+    margin: 0 0 0.75rem;
+}
+.breadcrumb .crumb {
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 2px;
+}
+.breadcrumb .crumb:hover {
+    color: var(--link-hover);
+    border-color: var(--link);
+}
+
+/* ===== Link detail card ===== */
+.link-detail {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.detail-header {
+    margin-bottom: 0.75rem;
+}
+
+.detail-title {
+    margin: 0 0 0.2rem;
+    font-size: 1.35rem;
+    line-height: 1.25;
+    word-break: break-word;
+}
+.detail-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+.detail-title a:hover {
+    color: var(--link-hover);
+}
+
+.url-line {
+    font-size: 0.9rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
+}
+.url-line a {
+    color: var(--muted);
+}
+.url-line a:hover {
+    color: var(--link-hover);
+}
+
+/* Meta (date · via) */
+.detail-meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.detail-meta .sep {
+    margin: 0 0.35rem;
+}
+.detail-meta .via {
+    color: var(--link);
+}
+.detail-meta .via:hover {
+    color: var(--link-hover);
+}
+
+/* Sections */
+.detail-summary,
+.detail-tags {
+    margin-top: 1rem;
+}
+.detail-summary h2,
+.detail-tags h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+    color: var(--muted);
+}
+#detail-summary {
+    white-space: pre-wrap; /* preserve line breaks from text */
+    margin: 0;
+}
+
+/* Actions */
+.detail-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-end;
+}
+
+/* Ensure chips wrap nicely on narrow screens */
+.detail-tags .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.card-actions .details-link {
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 1px;
+    align-self: center;
+}
+.card-actions .details-link:hover {
+    color: var(--link-hover);
+    border-color: var(--link);
+}
+
+/* If you enable the "Open" button above, it will pick up your .btn styles already */

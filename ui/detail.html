@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="/src/styles.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Link • Linkleaf</title>
+    </head>
+    <body>
+        <!-- Top navigation -->
+        <header class="topbar">
+            <div class="topbar-inner">
+                <a class="brand" href="/index.html">Linkleaf</a>
+                <nav class="nav-links" aria-label="Primary">
+                    <a class="nav-link" href="/index.html">Feed</a>
+                    <a class="nav-link" href="/add.html">Add Link</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="container">
+            <nav class="breadcrumb">
+                <a href="/index.html" class="crumb">← Back to feed</a>
+            </nav>
+
+            <article class="link-detail" aria-labelledby="detail-title">
+                <header class="detail-header">
+                    <h1 id="detail-title" class="detail-title">
+                        <!-- title text goes here -->
+                        <a
+                            id="detail-title-link"
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Link title
+                        </a>
+                    </h1>
+
+                    <div class="url-line">
+                        <a
+                            id="detail-url"
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            https://example.com/path/to/article
+                        </a>
+                    </div>
+
+                    <div class="detail-meta">
+                        <span id="detail-date" class="date">2025-08-23</span>
+                        <span class="sep"> · </span>
+                        <a
+                            id="detail-via"
+                            class="via"
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            >via</a
+                        >
+                    </div>
+                </header>
+
+                <section class="detail-summary">
+                    <h2>Summary</h2>
+                    <p id="detail-summary">
+                        Optional notes about this link. Line breaks will be
+                        preserved.
+                    </p>
+                </section>
+
+                <section class="detail-tags">
+                    <h2>Tags</h2>
+                    <div id="detail-tags" class="tags">
+                        <span class="tag-chip">rust</span>
+                        <span class="tag-chip">async</span>
+                        <span class="tag-chip">tokio</span>
+                    </div>
+                </section>
+
+                <footer class="detail-actions">
+                    <a class="btn btn-secondary" href="/index.html">Back</a>
+                    <a
+                        class="btn btn-primary"
+                        id="detail-open"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >Open link</a
+                    >
+                </footer>
+            </article>
+        </main>
+    </body>
+</html>
