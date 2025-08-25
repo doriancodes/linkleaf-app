@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "linkleaf-app",
+        "title": "Linkleaf",
         "width": 800,
         "height": 600
       }
