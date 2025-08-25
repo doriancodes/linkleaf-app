@@ -78,17 +78,6 @@ fn derive_id(url: &str, date: &str) -> String {
 }
 
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
-#[tauri::command]
-fn read_feed_json(path: String) -> Result<FeedDto, String> {
-    let pb = read_feed(&PathBuf::from(path)).map_err(|e| e.to_string())?;
-    Ok(FeedDto::from(pb))
-}
-
-#[tauri::command]
 fn read_feed_page(path: String, offset: usize, limit: usize) -> Result<PageDto, String> {
     let feed = read_feed(&PathBuf::from(path)).map_err(|e| e.to_string())?;
     let total = feed.links.len();
@@ -119,6 +108,8 @@ fn add_link(path: String, link: AddLinkDto) -> Result<LinkDto, String> {
     };
 
     let date = OffsetDateTime::now_utc().date().to_string();
+    let derived_id = derive_id(&link.url, &date);
+
     // 2) build the new link
     let new_pb = Link {
         id: derive_id(&link.url, &date),
@@ -130,6 +121,18 @@ fn add_link(path: String, link: AddLinkDto) -> Result<LinkDto, String> {
         via: link.via,
     };
 
+    if let Some(pos) = feed.links.iter().position(|l| l.id == derived_id) {
+        let l = &mut feed.links[pos];
+        l.title = new_pb.title.clone();
+        l.url = new_pb.url.clone();
+        l.date = OffsetDateTime::now_utc().date().to_string();
+        l.summary = new_pb.summary.clone();
+        l.tags = new_pb.tags.clone();
+        l.via = new_pb.via.clone();
+        write_feed(&PathBuf::from(path), feed).map_err(|e| e.to_string())?;
+        eprintln!("Updated existing link (id: {})", derived_id);
+        return Ok(LinkDto::from(new_pb.clone()));
+    }
     // 3) append and write atomically
     // put newest at the beginning
     feed.links.insert(0, new_pb.clone());
@@ -143,10 +146,7 @@ fn add_link(path: String, link: AddLinkDto) -> Result<LinkDto, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        //.invoke_handler(tauri::generate_handler![greet])
-        //.invoke_handler(tauri::generate_handler![read_feed_json])
         .invoke_handler(tauri::generate_handler![read_feed_page, add_link])
-        //.invoke_handler(tauri::generate_handler![add_link])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

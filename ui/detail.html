@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="/src/styles.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Link • Linkleaf</title>
+        <script type="module" src="/src/detail.ts" defer></script>
     </head>
     <body>
         <!-- Top navigation -->
@@ -23,21 +24,65 @@
                 <a href="/index.html" class="crumb">← Back to feed</a>
             </nav>
 
-            <article class="link-detail" aria-labelledby="detail-title">
+            <!-- data-mode controls which parts are visible -->
+            <article
+                class="link-detail form-card"
+                data-mode="view"
+                aria-labelledby="detail-title"
+            >
                 <header class="detail-header">
                     <h1 id="detail-title" class="detail-title">
-                        <!-- title text goes here -->
                         <a
                             id="detail-title-link"
                             href="#"
                             target="_blank"
                             rel="noopener noreferrer"
+                            >Link title</a
                         >
-                            Link title
-                        </a>
                     </h1>
 
-                    <div class="url-line">
+                    <div class="header-actions">
+                        <!-- Edit toggle (view mode) -->
+                        <button
+                            id="edit-toggle"
+                            class="icon-btn view-only"
+                            aria-label="Edit"
+                        >
+                            <!-- pencil icon (inline SVG) -->
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    fill="currentColor"
+                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83l3.75 3.75l1.99-1.66z"
+                                />
+                            </svg>
+                        </button>
+
+                        <!-- Save / Cancel (edit mode) -->
+                        <div class="edit-only">
+                            <button
+                                id="edit-cancel"
+                                class="btn btn-secondary"
+                                type="button"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                id="edit-save"
+                                class="btn btn-primary"
+                                type="button"
+                                disabled
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="url-line view-only">
                         <a
                             id="detail-url"
                             href="#"
@@ -48,7 +93,7 @@
                         </a>
                     </div>
 
-                    <div class="detail-meta">
+                    <div class="detail-meta view-only">
                         <span id="detail-date" class="date">2025-08-23</span>
                         <span class="sep"> · </span>
                         <a
@@ -62,7 +107,82 @@
                     </div>
                 </header>
 
-                <section class="detail-summary">
+                <!-- === EDIT FIELDS (hidden in view mode) === -->
+                <form id="edit-form" class="edit-only" novalidate>
+                    <input type="hidden" id="id" name="id" />
+                    <div class="form-grid">
+                        <div class="form-field form-full">
+                            <label for="title"
+                                >Title
+                                <span class="req" aria-hidden="true"
+                                    >*</span
+                                ></label
+                            >
+                            <input
+                                id="title"
+                                name="title"
+                                type="text"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-field form-full">
+                            <label for="url"
+                                >URL
+                                <span class="req" aria-hidden="true"
+                                    >*</span
+                                ></label
+                            >
+                            <input id="url" name="url" type="url" required />
+                            <small class="hint"
+                                >Open:
+                                <a
+                                    id="open-url"
+                                    href="#"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >link</a
+                                ></small
+                            >
+                        </div>
+
+                        <div class="form-field form-full">
+                            <label for="via">Via</label>
+                            <input
+                                id="via"
+                                name="via"
+                                type="url"
+                                placeholder="https://source.example"
+                            />
+                        </div>
+
+                        <div class="form-field form-full">
+                            <label for="summary">Summary</label>
+                            <textarea
+                                id="summary"
+                                name="summary"
+                                rows="5"
+                                placeholder="Optional notes…"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-field form-full">
+                            <label for="tags">Tags</label>
+                            <input
+                                id="tags"
+                                name="tags"
+                                type="text"
+                                placeholder="Comma-separated, e.g. rust, async, tokio"
+                            />
+                            <small class="hint"
+                                >Use commas to separate tags</small
+                            >
+                        </div>
+                    </div>
+                </form>
+
+                <!-- === VIEW SECTIONS === -->
+                <section class="detail-summary view-only">
                     <h2>Summary</h2>
                     <p id="detail-summary">
                         Optional notes about this link. Line breaks will be
@@ -70,16 +190,14 @@
                     </p>
                 </section>
 
-                <section class="detail-tags">
+                <section class="detail-tags view-only">
                     <h2>Tags</h2>
                     <div id="detail-tags" class="tags">
-                        <span class="tag-chip">rust</span>
-                        <span class="tag-chip">async</span>
-                        <span class="tag-chip">tokio</span>
+                        <!-- chips filled by TS -->
                     </div>
                 </section>
 
-                <footer class="detail-actions">
+                <footer class="detail-actions view-only">
                     <a class="btn btn-secondary" href="/index.html">Back</a>
                     <a
                         class="btn btn-primary"
@@ -90,6 +208,13 @@
                         >Open link</a
                     >
                 </footer>
+
+                <p
+                    id="form-status"
+                    role="status"
+                    class="hint"
+                    style="margin-top: 0.5rem"
+                ></p>
             </article>
         </main>
     </body>

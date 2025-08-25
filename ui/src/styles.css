@@ -585,4 +585,64 @@ select:focus {
     border-color: var(--link);
 }
 
-/* If you enable the "Open" button above, it will pick up your .btn styles already */
+.link-detail.form-card {
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Toggle blocks based on data-mode */
+.link-detail[data-mode="view"] .edit-only {
+    display: none;
+}
+.link-detail[data-mode="edit"] .view-only {
+    display: none;
+}
+
+/* Header actions (pencil, then save/cancel in edit mode) */
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Icon-only button */
+.icon-btn {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.02s ease;
+}
+.icon-btn:hover {
+    border-color: var(--link);
+    color: var(--text);
+    background: #222642;
+}
+.icon-btn:active {
+    transform: translateY(1px);
+}
+
+/* Make header layout nice on small screens */
+.detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+.detail-title {
+    flex: 1 1 auto;
+}
