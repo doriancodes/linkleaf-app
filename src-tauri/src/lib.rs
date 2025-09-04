@@ -1,9 +1,8 @@
-use linkleaf::feed::{read_feed, write_feed};
-use linkleaf::linkleaf_proto::{Feed, Link};
+use linkleaf_core::linkleaf_proto::{Feed, Link};
+use linkleaf_core::{add, list};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use std::path::PathBuf;
-use time::OffsetDateTime;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct FeedDto {
@@ -28,13 +27,13 @@ pub struct AddLinkDto {
     pub title: String,
     pub url: String,
     #[serde(default)]
-    pub summary: String,
+    pub summary: Option<String>,
     #[serde(default)]
     pub tags: Vec<String>,
     #[serde(default)]
-    pub via: String,
-    // if omitted, we’ll use today (UTC) as "YYYY-MM-DD"
-    pub date: Option<String>,
+    pub via: Option<String>,
+    #[serde(default)]
+    pub id: Option<Uuid>,
 }
 
 impl From<Link> for LinkDto {
@@ -67,19 +66,9 @@ struct PageDto {
     items: Vec<LinkDto>,
 }
 
-fn derive_id(url: &str, date: &str) -> String {
-    let mut hasher = Sha256::new();
-    hasher.update(url.as_bytes());
-    hasher.update(b"|");
-    hasher.update(date.as_bytes());
-    let digest = hasher.finalize();
-    let hexed = hex::encode(digest);
-    hexed[..12].to_string()
-}
-
 #[tauri::command]
 fn read_feed_page(path: String, offset: usize, limit: usize) -> Result<PageDto, String> {
-    let feed = read_feed(&PathBuf::from(path)).map_err(|e| e.to_string())?;
+    let feed = list(&PathBuf::from(path), None, None).unwrap();
     let total = feed.links.len();
     let end = (offset + limit).min(total);
     let items = if offset >= total {
@@ -98,45 +87,24 @@ fn read_feed_page(path: String, offset: usize, limit: usize) -> Result<PageDto, 
 #[tauri::command]
 fn add_link(path: String, link: AddLinkDto) -> Result<LinkDto, String> {
     // 1) read or create a new feed if missing
-    let mut feed = match read_feed(&PathBuf::from(&path)) {
-        Ok(f) => f,
-        Err(_e) => Feed {
-            title: "My Links".to_string(),
-            version: 1,
-            links: vec![],
-        },
+    let path = PathBuf::from(&path);
+
+    let tags_opt = if link.tags.is_empty() {
+        None
+    } else {
+        Some(link.tags.join(","))
     };
 
-    let date = OffsetDateTime::now_utc().date().to_string();
-    let derived_id = derive_id(&link.url, &date);
-
-    // 2) build the new link
-    let new_pb = Link {
-        id: derive_id(&link.url, &date),
-        title: link.title,
-        url: link.url,
-        date: date,
-        summary: link.summary,
-        tags: link.tags,
-        via: link.via,
-    };
-
-    if let Some(pos) = feed.links.iter().position(|l| l.id == derived_id) {
-        let l = &mut feed.links[pos];
-        l.title = new_pb.title.clone();
-        l.url = new_pb.url.clone();
-        l.date = OffsetDateTime::now_utc().date().to_string();
-        l.summary = new_pb.summary.clone();
-        l.tags = new_pb.tags.clone();
-        l.via = new_pb.via.clone();
-        write_feed(&PathBuf::from(path), feed).map_err(|e| e.to_string())?;
-        eprintln!("Updated existing link (id: {})", derived_id);
-        return Ok(LinkDto::from(new_pb.clone()));
-    }
-    // 3) append and write atomically
-    // put newest at the beginning
-    feed.links.insert(0, new_pb.clone());
-    write_feed(&PathBuf::from(path), feed).map_err(|e| e.to_string())?;
+    let new_pb = add(
+        &path,
+        link.title,
+        link.url,
+        link.summary,
+        tags_opt,
+        link.via,
+        link.id,
+    )
+    .unwrap();
 
     // 4) return the added item to the UI
     Ok(LinkDto::from(new_pb))
