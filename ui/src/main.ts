@@ -1,8 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
 
-// let greetInputEl: HTMLInputElement | null;
-// let greetMsgEl: HTMLElement | null;
-
 type Link = {
   id: string;
   title: string;
@@ -18,7 +15,13 @@ type PageDto = {
   items: Link[];
 };
 
-const path = "mylinks.pb";
+type FeedInfo = {
+  name: string;
+  path: string;
+};
+
+let selectedFeed: FeedInfo | null = null;
+
 let offset = 0;
 let limit = 10;
 let total = 0;
@@ -40,14 +43,22 @@ const statusTop = document.getElementById("pager-status")!;
 const statusBottom = document.getElementById("pager-status-bottom")!;
 const pageSizeSel = document.getElementById("page-size") as HTMLSelectElement;
 
-// async function greet() {
-//   if (greetMsgEl && greetInputEl) {
-//     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-//     greetMsgEl.textContent = await invoke("greet", {
-//       name: greetInputEl.value,
-//     });
-//   }
-// }
+const sidebarToggle = document.getElementById(
+  "sidebar-toggle",
+) as HTMLButtonElement;
+const feedsNav = document.getElementById("feeds-nav") as HTMLUListElement;
+const newFeedBtn = document.getElementById("new-feed") as HTMLButtonElement;
+
+const LS_FEED_KEY = "linkleaf.selectedFeedPath";
+
+function slugify(s: string) {
+  return s
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+}
 
 function chip(text: string): HTMLElement {
   const span = document.createElement("span");
@@ -129,9 +140,15 @@ function updatePager() {
 }
 
 async function loadPage() {
+  if (!selectedFeed) {
+    listEl.innerHTML = `<p style="color:var(--muted)">No feed selected.</p>`;
+    total = 0;
+    updatePager();
+    return;
+  }
   try {
     const page = await invoke<PageDto>("read_feed_page", {
-      path,
+      path: selectedFeed.path,
       offset,
       limit,
     });
@@ -140,6 +157,120 @@ async function loadPage() {
     updatePager();
   } catch (e) {
     listEl.innerHTML = `<p style="color:#ef4444">Failed to load: ${e}</p>`;
+    total = 0;
+    updatePager();
+  }
+}
+
+// async function loadPage() {
+//   try {
+//     const page = await invoke<PageDto>("read_feed_page", {
+//       path,
+//       offset,
+//       limit,
+//     });
+//     total = page.total;
+//     renderItems(page.items);
+//     updatePager();
+//   } catch (e) {
+//     listEl.innerHTML = `<p style="color:#ef4444">Failed to load: ${e}</p>`;
+//   }
+// }
+
+async function fetchFeeds(): Promise<FeedInfo[]> {
+  try {
+    return await invoke<FeedInfo[]>("list_feeds");
+  } catch {
+    return [];
+  }
+}
+
+function renderFeedsList(feeds: FeedInfo[]) {
+  feedsNav.innerHTML = "";
+  for (const f of feeds) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = "#";
+    a.textContent = f.name;
+    a.dataset.path = f.path;
+    a.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      selectFeed(f);
+    });
+    if (selectedFeed && f.path === selectedFeed.path) {
+      li.classList.add("active");
+    }
+    li.appendChild(a);
+    feedsNav.appendChild(li);
+  }
+}
+
+async function selectFeed(feed: FeedInfo) {
+  selectedFeed = feed;
+  localStorage.setItem(LS_FEED_KEY, feed.path);
+  offset = 0; // reset paging on feed change
+  // update active class
+  for (const li of feedsNav.querySelectorAll("li")) {
+    const a = li.querySelector("a") as HTMLAnchorElement;
+    li.classList.toggle("active", a?.dataset.path === feed.path);
+  }
+  await loadPage();
+}
+
+/* Will be called only when no feeds exist. You said BE will create with default name/path. */
+async function createDefaultFeed(): Promise<FeedInfo> {
+  const defaultName = "My Links";
+  const defaultPath = "mylinks.pb"; // adjust if your BE expects a different default
+  return await invoke<FeedInfo>("create_feed", {
+    name: defaultName,
+    path: defaultPath,
+  });
+}
+
+async function initFeeds() {
+  let feeds = await fetchFeeds();
+  if (feeds.length === 0) {
+    // Create & use a default feed
+    const created = await createDefaultFeed();
+    feeds = [created];
+  }
+
+  // Restore last selection if possible
+  const lastPath = localStorage.getItem(LS_FEED_KEY);
+  const initial =
+    (lastPath && feeds.find((f) => f.path === lastPath)) || feeds[0];
+
+  selectedFeed = initial;
+  renderFeedsList(feeds);
+  // mark active
+  for (const li of feedsNav.querySelectorAll("li")) {
+    const a = li.querySelector("a") as HTMLAnchorElement;
+    li.classList.toggle("active", a?.dataset.path === initial.path);
+  }
+}
+
+/* ---------- NEW: UI actions ---------- */
+function toggleSidebar() {
+  const collapsed = document.body.classList.toggle("sidebar-collapsed");
+  if (sidebarToggle)
+    sidebarToggle.setAttribute("aria-expanded", (!collapsed).toString());
+}
+
+async function onCreateFeed() {
+  const name = prompt("New feed name:", "New Feed");
+  if (!name) return;
+
+  const pathGuess = `${slugify(name)}.pb`; // FE proposes; BE can override if it wants
+  try {
+    const created = await invoke<FeedInfo>("create_feed", {
+      name,
+      path: pathGuess,
+    });
+    const feeds = await fetchFeeds();
+    renderFeedsList(feeds);
+    await selectFeed(created);
+  } catch (e) {
+    alert(`Failed to create feed: ${e}`);
   }
 }
 
@@ -174,7 +305,11 @@ function goLast() {
 //   });
 // });
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
+  // sidebar
+  sidebarToggle?.addEventListener("click", toggleSidebar);
+  newFeedBtn?.addEventListener("click", onCreateFeed);
+
   btnFirst.addEventListener("click", goFirst);
   btnPrev.addEventListener("click", goPrev);
   btnNext.addEventListener("click", goNext);
@@ -191,5 +326,7 @@ window.addEventListener("DOMContentLoaded", () => {
     loadPage();
   });
 
-  loadPage();
+  // init feeds & first page
+  await initFeeds();
+  await loadPage();
 });

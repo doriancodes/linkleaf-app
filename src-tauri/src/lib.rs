@@ -1,3 +1,5 @@
+use anyhow::Result;
+use linkleaf_core::fs::write_feed;
 use linkleaf_core::linkleaf_proto::{Feed, Link};
 use linkleaf_core::{add, list};
 use serde::{Deserialize, Serialize};
@@ -67,10 +69,33 @@ struct PageDto {
 }
 
 #[tauri::command]
-fn read_feed_page(path: String, offset: usize, limit: usize) -> Result<PageDto, String> {
-    let feed = list(&PathBuf::from(path), None, None).unwrap();
+fn create_feed(name: String, path: String) -> FeedDto {
+    let feed = write_feed(
+        path,
+        Feed {
+            title: name,
+            version: 1,
+            links: vec![],
+        },
+    )
+    .unwrap();
+    return FeedDto::from(feed);
+}
+
+#[tauri::command]
+fn read_feed_page(path: String, offset: usize, limit: usize) -> PageDto {
+    let feed = list(&PathBuf::from(path), None, None);
+    let feed = match feed {
+        Ok(f) => f,
+        Err(_) => {
+            return PageDto {
+                total: 0,
+                items: vec![],
+            }
+        }
+    };
     let total = feed.links.len();
-    let end = (offset + limit).min(total);
+    let _ = (offset + limit).min(total);
     let items = if offset >= total {
         vec![]
     } else {
@@ -81,7 +106,7 @@ fn read_feed_page(path: String, offset: usize, limit: usize) -> Result<PageDto, 
             .map(LinkDto::from)
             .collect()
     };
-    Ok(PageDto { total, items })
+    PageDto { total, items }
 }
 
 #[tauri::command]
@@ -114,7 +139,11 @@ fn add_link(path: String, link: AddLinkDto) -> Result<LinkDto, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![read_feed_page, add_link])
+        .invoke_handler(tauri::generate_handler![
+            create_feed,
+            read_feed_page,
+            add_link
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

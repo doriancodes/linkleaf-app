@@ -12,6 +12,15 @@
         <!-- Top navigation -->
         <header class="topbar">
             <div class="topbar-inner">
+                <!-- inside .topbar-inner, before the .brand link -->
+                <button
+                    id="sidebar-toggle"
+                    class="icon-btn"
+                    aria-label="Toggle sidebar"
+                    aria-expanded="true"
+                >
+                    ☰
+                </button>
                 <a class="brand" href="/index.html">Linkleaf</a>
                 <nav class="nav-links" aria-label="Primary">
                     <a
@@ -24,114 +33,112 @@
                 </nav>
             </div>
         </header>
-        <main class="container">
-            <h1>Linkleaf</h1>
 
-            <!-- <div class="row">
-                <a href="https://vite.dev" target="_blank">
-                    <img
-                        src="/src/assets/vite.svg"
-                        class="logo vite"
-                        alt="Vite logo"
-                    />
-                </a>
-                <a href="https://tauri.app" target="_blank">
-                    <img
-                        src="/src/assets/tauri.svg"
-                        class="logo tauri"
-                        alt="Tauri logo"
-                    />
-                </a>
-                <a href="https://www.typescriptlang.org/docs" target="_blank">
-                    <img
-                        src="/src/assets/typescript.svg"
-                        class="logo typescript"
-                        alt="typescript logo"
-                    />
-                </a>
-            </div> -->
-            <p>Your personal link feed</p>
-
-            <!-- <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit">Greet</button>
-            </form> -->
-            <!-- <p id="greet-msg"></p> -->
-            <section id="feed">
-                <h2>Your feed</h2>
-
-                <!-- Pagination controls (top) -->
-                <nav class="pager" aria-label="Pagination">
-                    <button id="first" class="pager-btn" disabled>
-                        « First
-                    </button>
-                    <button id="prev" class="pager-btn" disabled>‹ Prev</button>
-                    <span id="pager-status" class="pager-status"
-                        >Page 1 / 1</span
+        <div class="shell">
+            <aside id="sidebar" class="sidebar" aria-label="Feeds">
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">Feeds</h2>
+                    <button
+                        id="new-feed"
+                        class="btn btn-secondary btn-sm"
+                        title="Create a new feed"
                     >
-                    <button id="next" class="pager-btn">Next ›</button>
-                    <button id="last" class="pager-btn">Last »</button>
-
-                    <label class="pager-size">
-                        per page
-                        <select id="page-size">
-                            <option value="5">5</option>
-                            <option value="10" selected>10</option>
-                            <option value="20">20</option>
-                        </select>
-                    </label>
-                </nav>
-
-                <!-- List container -->
-                <div id="feed-list" class="feed-list"></div>
-
-                <!-- Pagination controls (bottom) -->
-                <nav class="pager" aria-label="Pagination">
-                    <button id="first-bottom" class="pager-btn" disabled>
-                        « First
+                        ＋
                     </button>
-                    <button id="prev-bottom" class="pager-btn" disabled>
-                        ‹ Prev
-                    </button>
-                    <span id="pager-status-bottom" class="pager-status"
-                        >Page 1 / 1</span
-                    >
-                    <button id="next-bottom" class="pager-btn">Next ›</button>
-                    <button id="last-bottom" class="pager-btn">Last »</button>
-                </nav>
+                </div>
+                <ul id="feeds-nav" class="feeds-nav" role="list"></ul>
+            </aside>
 
-                <!-- Template for one link-card -->
-                <template id="link-template">
-                    <article class="link-card">
-                        <h3>
-                            <a target="_blank" rel="noopener noreferrer"></a>
-                        </h3>
-                        <div class="meta">
-                            <span class="date"></span>
-                            <span class="sep"> · </span>
-                            <a
-                                class="via"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                >via</a
-                            >
-                        </div>
-                        <p class="summary"></p>
-                        <div class="tags"></div>
-                        <footer class="card-actions">
-                            <a class="details-link" href="#">Details</a>
-                            <!-- optional: quick external button (title already opens external) -->
-                            <a
-                                class="btn btn-secondary open-link"
-                                href="#"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                >Open ↗</a
-                            >
-                        </footer>
-                    </article>
-                </template>
-            </section>
-        </main>
+            <main class="container">
+                <!-- (your existing main content stays exactly the same) -->
+                <h1>Linkleaf</h1>
+                <p>Your personal link feed</p>
+                <!-- … everything you already have under #feed … -->
+                <section id="feed">
+                    <h2>Your feed</h2>
+
+                    <!-- Pagination controls (top) -->
+                    <nav class="pager" aria-label="Pagination">
+                        <button id="first" class="pager-btn" disabled>
+                            « First
+                        </button>
+                        <button id="prev" class="pager-btn" disabled>
+                            ‹ Prev
+                        </button>
+                        <span id="pager-status" class="pager-status"
+                            >Page 1 / 1</span
+                        >
+                        <button id="next" class="pager-btn">Next ›</button>
+                        <button id="last" class="pager-btn">Last »</button>
+
+                        <label class="pager-size">
+                            per page
+                            <select id="page-size">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </label>
+                    </nav>
+
+                    <!-- List container -->
+                    <div id="feed-list" class="feed-list"></div>
+
+                    <!-- Pagination controls (bottom) -->
+                    <nav class="pager" aria-label="Pagination">
+                        <button id="first-bottom" class="pager-btn" disabled>
+                            « First
+                        </button>
+                        <button id="prev-bottom" class="pager-btn" disabled>
+                            ‹ Prev
+                        </button>
+                        <span id="pager-status-bottom" class="pager-status"
+                            >Page 1 / 1</span
+                        >
+                        <button id="next-bottom" class="pager-btn">
+                            Next ›
+                        </button>
+                        <button id="last-bottom" class="pager-btn">
+                            Last »
+                        </button>
+                    </nav>
+
+                    <!-- Template for one link-card -->
+                    <template id="link-template">
+                        <article class="link-card">
+                            <h3>
+                                <a
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                ></a>
+                            </h3>
+                            <div class="meta">
+                                <span class="date"></span>
+                                <span class="sep"> · </span>
+                                <a
+                                    class="via"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >via</a
+                                >
+                            </div>
+                            <p class="summary"></p>
+                            <div class="tags"></div>
+                            <footer class="card-actions">
+                                <a class="details-link" href="#">Details</a>
+                                <!-- optional: quick external button (title already opens external) -->
+                                <a
+                                    class="btn btn-secondary open-link"
+                                    href="#"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >Open ↗</a
+                                >
+                            </footer>
+                        </article>
+                    </template>
+                </section>
+            </main>
+        </div>
     </body>
 </html>

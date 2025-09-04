@@ -646,3 +646,87 @@ select:focus {
 .detail-title {
     flex: 1 1 auto;
 }
+
+/* ====== 2-column shell with collapsible sidebar ====== */
+.shell {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 3.2rem);
+}
+
+/* Collapse behavior toggled on <body> */
+body.sidebar-collapsed .shell {
+    grid-template-columns: 0 1fr;
+}
+
+.sidebar {
+    background: var(--bg-alt);
+    border-right: 1px solid var(--border);
+    padding: 0.75rem;
+    overflow: hidden; /* keeps content hidden when collapsed */
+    position: sticky;
+    top: 3.2rem; /* sits under sticky topbar */
+    align-self: start;
+    height: calc(100vh - 3.2rem);
+}
+
+body.sidebar-collapsed .sidebar {
+    padding: 0; /* visually collapses */
+    border-right: none;
+}
+
+/* Sidebar header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.sidebar-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--muted);
+}
+
+/* Make a smaller button variant you can reuse */
+.btn.btn-sm {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.9rem;
+}
+
+/* Feed list in sidebar */
+.feeds-nav {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.feeds-nav li a {
+    display: block;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.45rem;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+.feeds-nav li a:hover {
+    background: var(--panel);
+    border-color: var(--border);
+    color: var(--link-hover);
+}
+.feeds-nav li.active a {
+    background: #222642;
+    border: 1px solid var(--link);
+}
+
+/* Mobile: sidebar collapsed by default, toggle to slide in if you want later */
+@media (max-width: 900px) {
+    body:not(.sidebar-collapsed) .shell {
+        grid-template-columns: 220px 1fr;
+    }
+    body.sidebar-collapsed .shell {
+        grid-template-columns: 0 1fr;
+    }
+}
